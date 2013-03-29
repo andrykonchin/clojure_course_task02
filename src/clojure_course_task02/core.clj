@@ -4,11 +4,12 @@
 (import java.io.File)
 
 (defn find-files [file-name path]
-  (defn get-files [f]
-    (if (.isFile f)
-      (if (re-matches (re-pattern file-name) (.getName f)) [(.getName f)] [])
-      (reduce concat (doall (pmap get-files (.listFiles f))))))
-  (get-files (File. path)))
+  (defn get-files [root]
+    (if (.isDirectory root)
+      (reduce concat (doall (pmap get-files (.listFiles root))))
+      [root]))
+  (defn match? [f] (re-matches (re-pattern file-name) (.getName f)))
+  (map (fn [f] (.getName f)) (filter match? (get-files (File. path)))))
 
 (defn usage []
   (println "Usage: $ run.sh file_name path"))
