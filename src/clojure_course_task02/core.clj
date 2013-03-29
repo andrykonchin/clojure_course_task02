@@ -4,13 +4,11 @@
 (import java.io.File)
 
 (defn find-files [file-name path]
-  (let [f (File. path)]
+  (defn get-files [f]
     (if (.isFile f)
-      (if (not (empty? (re-seq (re-pattern file-name) (. f getName))))
-        [(. f getName)]
-        [])
-      (reduce concat (doall (pmap (fn [s] (find-files file-name (str path (. File separator ) s)))
-                                  (. f list)))))))
+      (if (re-matches (re-pattern file-name) (.getName f)) [(.getName f)] [])
+      (reduce concat (doall (pmap get-files (.listFiles f))))))
+  (get-files (File. path)))
 
 (defn usage []
   (println "Usage: $ run.sh file_name path"))
